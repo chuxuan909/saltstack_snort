@@ -1,4 +1,6 @@
 #!/bin/bash
+USE_IFCONFIG=eth0
+IP_ADDR=$(ifconfig $USE_IFCONFIG | grep "inet addr" | awk '{ print $2}' | awk -F: '{print $2}')
 ntpdate ntp1.aliyun.com
 tar -zxvf /opt/snort_install/daq-2.0.6.tar.gz -C /opt/snort_install
 cd /opt/snort_install/daq-2.0.6 && ./configure && make && make install
@@ -7,7 +9,7 @@ cd /opt/snort_install/snort-2.9.11 && ./configure --enable-sourcefire --prefix=/
 tar -zxvf /opt/snort_install/snortrules-snapshot-29110.tar.gz -C /usr/local/snort/
 rm -f  /usr/local/bin/snort
 ln -s /usr/local/snort/bin/snort   /usr/local/bin/snort
-sed -i 's#ipvar HOME_NET any#ipvar HOME_NET 192.168.0.201#g'  /usr/local/snort/etc/snort.conf
+sed -i 's/ipvar HOME_NET any/ipvar HOME_NET '$IP_ADDR'/g'  /usr/local/snort/etc/snort.conf
 sed -i 's/ipvar EXTERNAL_NET any/ipvar EXTERNAL_NET !$HOME_NET/g'  /usr/local/snort/etc/snort.conf
 sed -i 's#/usr/local/lib/snort_dynamicpreprocessor/#/usr/local/snort/lib/snort_dynamicpreprocessor/#g'  /usr/local/snort/etc/snort.conf
 sed -i 's#/usr/local/lib/snort_dynamicengine/libsf_engine.so#/usr/local/snort/lib/snort_dynamicengine/libsf_engine.so#g' /usr/local/snort/etc/snort.conf
